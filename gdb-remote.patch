@@ -1,0 +1,29 @@
+--- gdb-7.11/gdb/remote.c	2016-02-24 04:47:22.000000000 -0500
++++ gdb-7.11-pierre/gdb/remote.c	2016-09-01 18:04:24.404289797 -0400
+@@ -7180,21 +7180,21 @@
+ 
+   buf_len = strlen (rs->buf);
+ 
+-  /* Further sanity checks, with knowledge of the architecture.  */
+-  if (buf_len > 2 * rsa->sizeof_g_packet)
++  /* Further sanity checks */
++  if (buf_len > DEFAULT_MAX_MEMORY_PACKET_SIZE)
+     error (_("Remote 'g' packet reply is too long: %s"), rs->buf);
+ 
+   /* Save the size of the packet sent to us by the target.  It is used
+      as a heuristic when determining the max size of packets that the
+      target can safely receive.  */
+-  if (rsa->actual_register_packet_size == 0)
++  if (rsa->actual_register_packet_size != buf_len)
+     rsa->actual_register_packet_size = buf_len;
+ 
+-  /* If this is smaller than we guessed the 'g' packet would be,
++  /* If this is not equal to what we guessed the 'g' packet would be,
+      update our records.  A 'g' reply that doesn't include a register's
+      value implies either that the register is not available, or that
+      the 'p' packet must be used.  */
+-  if (buf_len < 2 * rsa->sizeof_g_packet)
++  if (buf_len != 2 * rsa->sizeof_g_packet)
+     {
+       rsa->sizeof_g_packet = buf_len / 2;
+ 
